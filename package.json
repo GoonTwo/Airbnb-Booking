@@ -1,0 +1,30 @@
+{
+  "name": "airbnb-booking",
+  "version": "1.0.0",
+  "description": "booking service for Airbnb clone",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "start": "nodemon ./app/server/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GoonTwo/Airbnb-Booking.git"
+  },
+  "author": "danny welstad",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GoonTwo/Airbnb-Booking/issues"
+  },
+  "homepage": "https://github.com/GoonTwo/Airbnb-Booking#readme",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-http": "^3.0.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "mocha": "^4.0.1"
+  },
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}
