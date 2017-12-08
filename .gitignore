@@ -5,6 +5,10 @@ config/production.json
 config/staging.json
 config/test.json
 
+
+# Environment Variables
+.env
+
 # OS X
 .DS_Store
 
