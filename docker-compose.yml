@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  booking:
+    build: booking/
+    depends_on:
+      - 'database'
+    ports: 
+      - '8080:8080'
+  database:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: dannywelstad
+      POSTGRES_DB: booking
