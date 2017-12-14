@@ -1,5 +1,5 @@
 # What image do you want to start building on?
-FROM node:latest
+FROM node:9
 
 # Make a folder in your image where your app's source code can live
 RUN mkdir -p /src/app
@@ -10,12 +10,10 @@ WORKDIR /src/app
 # What source code do you what to copy, and where to put it?
 COPY . /src/app
 
-## install nodemone globally
-RUN npm install --global nodemon
-
 # Does your app have any dependencies that should be installed?
 RUN npm install
 
+# RUN node ./app/database/seeds/data.js
 # What port will the container talk to the outside world with once created?
 EXPOSE 3000
 
