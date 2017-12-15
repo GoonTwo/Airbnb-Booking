@@ -1,5 +1,3 @@
-const path = require('path');
-
 module.exports = {
   development: {
     client: 'pg',
@@ -9,25 +7,25 @@ module.exports = {
       database: 'booking',
     },
     migration: {
-      directory: `${__dirname}/app/database/migrations`,
+      directory: './app/database/migrations',
     },
     seeds: {
-      directory: `${__dirname}/app/database/seeds`,
+      directory: './app/database/seeds',
     },
   },
   production: {
     client: 'pg',
     connection: {
-      host: 'database',
-      user: process.env.DB_USER,
-      password: process.env.DB_USER,
-      database: process.env.POSTGRES_DB,
+      host: 'postgres',
+      user: 'postgres',
+      database: 'booking',
+      password: process.env.POSTGRES_PASSWORD,
     },
     migration: {
-      directory: path.join(__dirname, '/app/database/migrations'),
+      directory: './app/database/migrations',
     },
     seeds: {
-      directory: path.join(__dirname, '/app/database/seeds'),
+      directory: './app/database/seeds',
     },
   },
   test: {
@@ -38,10 +36,10 @@ module.exports = {
       database: 'booking_test',
     },
     migration: {
-      directory: path.join(__dirname, '/app/database/migrations'),
+      directory: './app/database/migrations',
     },
     seeds: {
-      directory: path.join(__dirname, '/app/database/seeds'),
+      directory: './app/database/seeds',
     },
   },
 };

@@ -11,14 +11,6 @@ const knex = require('../app/database/knex');
 const should = chai.should();
 chai.use(chaiHttp);
 
-before(function () {
-  // runs before all tests in this block
-});
-
-after(function () {
-  // runs after all tests in this block
-});
-
 beforeEach(function (done) {
   knex.migrate.rollback()
     .then(function () {
@@ -66,16 +58,23 @@ describe('Server', function () {
 
     it('should post a booking', function (done) {
       chai.request(server)
-        .post('/booking/3')
+        .post('/booking/5')
         .send({
           "guest_id": "24",
-          "startDate": "1/01/17",
-          "endDate": "1/01/17"
+          "startDate": "1/10/17",
+          "endDate": "1/13/17"
         })
-        .end(function (err, res) {
+        .end((err, res) => {
           res.should.have.status(200);
-          done();
-        });
+        })
+        .then(() => {
+          chai.request(server)
+            .get('/booking/5')
+            .end(function (err, res) {
+              res.body[5].should.have.length(4);
+              done();
+            });
+        })
     });
 
     it('should error if listing is already booked', function (done) {
@@ -83,14 +82,25 @@ describe('Server', function () {
         .post('/booking/3')
         .send({
           "guest_id": "24",
-          "startDate": "1/01/17",
-          "endDate": "1/01/17"
+          "startDate": "1/21/17",
+          "endDate": "1/25/17"
         })
         .end(function (err, res) {
           res.should.have.status(200);
-          done();
-        });
+        })
+        .then(() => {
+          chai.request(server)
+            .post('/booking/3')
+            .send({
+              "guest_id": "24",
+              "startDate": "1/22/17",
+              "endDate": "1/27/17"
+            }).end(function (err, res) {
+              res.should.have.status(409);
+              done();
+            });
+        })
     });
-    
+
   });
 });

@@ -9,12 +9,12 @@ exports.up = function (knex, Promise) {
     }),
 
     knex.schema.createTable('bookings', function (table) {
-      table.increments('id');
+      table.increments('id').primary();
       table.timestamp('created_at').defaultTo(knex.fn.now())
       table.timestamp('updated_at').defaultTo(knex.fn.now())
       table.integer('date_id').references('id').inTable('dates');
       table.integer('guest_id').notNullable();
-      table.integer('list_id').notNullable();
+      table.integer('list_id').index().notNullable();
     })
 
   ]);

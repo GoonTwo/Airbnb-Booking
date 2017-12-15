@@ -1,24 +1,27 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const morgan = require('morgan');
 
-const getBookings = require('./helpers/getBookings');
+
+const getBookings = require('./middleware/getBookings');
+const bookingsCache = require('./middleware/bookingsCache');
 const makeBooking = require('./helpers/makeBooking');
-
 
 const app = express();
 app.use(bodyParser.json());
+app.use(morgan('tiny'));
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
+
+
 app.get('/', (req, res) => {
-  res.send('hello world!!!');
+  res.json('you made it!');
 });
 
-app.get('/booking/:list_id', (req, res) => {
-  getBookings(req.params.list_id)
-    .then((availability) => {
-      res.json(availability);
-    });
+app.get('/booking/:list_id', bookingsCache, getBookings, (req, res) => {
+  res.json(req.bookings);
 });
+
 
 app.post('/booking/:list_id', (req, res) => {
   makeBooking(req, res);

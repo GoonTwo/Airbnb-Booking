@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha --exit",
-    "start": "nodemon ./app/server/index.js",
+    "start": "npm run start:redis | npm run start:server",
+    "start:server": "node ./app/server/index.js",
+    "start:redis": "redis-server",
     "migrate": "knex migrate:latest",
     "seed": "node ./app/database/seeds/data.js"
   },
@@ -38,6 +40,8 @@
     "express": "^4.16.2",
     "knex": "^0.13.0",
     "moment": "^2.19.4",
-    "pg": "^7.4.0"
+    "morgan": "^1.9.0",
+    "pg": "^7.4.0",
+    "redis": "^2.8.0"
   }
 }

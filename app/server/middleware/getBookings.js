@@ -1,9 +1,12 @@
 const knex = require('../../database/knex');
+const redis = require('redis');
 
-const getBookings = (listId) => {
+const client = redis.createClient();
+
+const getBookings = (req, res, next) => {
   return knex.from('bookings')
     .innerJoin('dates', 'bookings.date_id', 'dates.id')
-    .where('list_id', listId)
+    .where('list_id', req.params.list_id)
     .then((booking) => {
       const availability = booking.reduce((acc, el) => {
         if (acc[el.list_id]) {
@@ -13,7 +16,9 @@ const getBookings = (listId) => {
         }
         return acc;
       }, {});
-      return availability;
+      req.bookings = availability;
+      client.setex(req.params.list_id, 60, JSON.stringify(availability));
+      next();
     });
 };
 

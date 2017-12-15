@@ -26,7 +26,7 @@ const makeBooking = (req, res) => {
         // check for conflicts between requested dates and already booked dates
         if (isConflict(requestedDatesIds, bookedDatesIds)) {
           // if there is a conflict, send error
-          res.send('booking conflict');
+          res.status(409).send('booking conflict');
         } else {
           // if there is no conflict, insert all booking dates (ids) with a transaction
           knex.transaction((trx) => {
@@ -48,7 +48,7 @@ const makeBooking = (req, res) => {
             })
             .catch((error) => {
               console.error(error);
-              res.send('no conflicts, but booking was still unsuccesfull');
+              res.status(409).send('no conflicts, but booking was still unsuccesfull');
             });
         }
       });
