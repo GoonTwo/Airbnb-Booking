@@ -51,15 +51,13 @@ var endingDate = randomEndDate(beginDate);
 
 const bookingTracker = {};
 
-for (let i = 1; i <= 10000; i += 1) {
+for (let i = 1; i <= 1000000; i += 1) {
 
   // --------------------
   // ----- BOOKINGS -----
   // --------------------
 
-  const bookingStart = randomBeginDate();
-  const bookingEnd = randomEndDate(bookingStart);
-  const listing_id = Math.floor(Math.random() * 40000);
+  const listing_id = Math.floor(Math.random() * 100000);
 
   const booking = {
     listing_id: listing_id,
@@ -72,8 +70,8 @@ for (let i = 1; i <= 10000; i += 1) {
   bookingTracker[booking.listing_id] = bookingTracker[booking.listing_id] || {};
 
   do {
-    const bookingStart = randomBeginDate();
-    const bookingEnd = randomEndDate(bookingStart);
+    var bookingStart = randomBeginDate();
+    var bookingEnd = randomEndDate(bookingStart);
   } while (bookingConflict(bookingStart, bookingEnd, listing_id))
   
   addBookings(bookingStart, bookingEnd, listing_id)
@@ -98,16 +96,35 @@ for (let i = 1; i <= 10000; i += 1) {
   // --------------------------
   // --------- PRICES ---------
   // --------------------------
-
+  
   data.prices.push({
     listing_id: listing_id,
     price: Math.floor((Math.random() * 50) + 20),
   })
+  
+  // --------------------------
+  // ---- BLACKOUT DATES ------
+  // --------------------------
 
-  if (i % 1000 === 0) {
+  do {
+    var blackoutStart = randomBeginDate();
+    var blackoutEnd = randomEndDate(blackoutStart);
+  } while (bookingConflict(blackoutStart, blackoutEnd, listing_id))
+  addBookings(blackoutStart, blackoutEnd, listing_id)
+  
+  for (const date of datesBetween(new Date(blackoutStart), new Date(blackoutEnd))) {
+    let newDate = moment(date).format('YYYY-MM-DD');
+    data.blackoutDates.push({
+      listing_id: listing_id,
+      date: newDate,
+    });
+  }
+
+  if (i % 10000 === 0) {
     console.log('generated :' + i);
   }
 }
+
 
 knex.batchInsert('bookings', data.bookings, 1000).then(() => {
   console.log('done with bookings');
