@@ -3,7 +3,7 @@ const redis = require('redis');
 const client = redis.createClient();
 
 module.exports = (req, res, next) => {
-  const listing = req.params.list_id;
+  const listing = req.params.listingId;
   client.get(listing, (err, data) => {
     if (err) throw err;
 

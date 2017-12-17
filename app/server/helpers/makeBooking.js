@@ -6,22 +6,22 @@ const Promise = require('bluebird');
 const isConflict = require('./isConflict');
 
 const makeBooking = (req, res) => {
+  const { listingId, userId, price } = req.body;
+
   const startDate = new Date(req.body.startDate);
   const endDate = new Date(req.body.endDate);
 
   const requestedDates = [];
-  const { list_id } = req.params;
-  const { guest_id } = req.body;
 
   // get all dates between requested dates
   for (const date of datesBetween(startDate, endDate)) {
     const newDate = moment(date).format('L');
     requestedDates.push(newDate);
   }
-  // get date ids from "dates" table for requested dates
+  // get date ids from "dates" table for requested booking dates
   knex.select('id').from('dates').whereIn('date', requestedDates).then((requestedDatesIds) => {
     // look up date ids for the listings actual bookings
-    knex.select('date_id').from('bookings').where({ list_id })
+    knex.select('date_id').from('bookings').where({ listing_id: listingId })
       .then((bookedDatesIds) => {
         // check for conflicts between requested dates and already booked dates
         if (isConflict(requestedDatesIds, bookedDatesIds)) {
@@ -36,15 +36,26 @@ const makeBooking = (req, res) => {
               // map over all requested dates and save the bookings
               .then(() => {
                 return Promise.map(requestedDatesIds, (date) => {
-                  return trx.insert({ date_id: date.id, list_id, guest_id }).into('bookings');
+                  return trx.insert({
+                    date_id: date.id,
+                    listing_id: listingId,
+                    user_id: userId,
+                    price,
+                  }).into('bookings');
                 });
               })
               .then(trx.commit)
               .catch(trx.rollback);
           })
             .then((inserts) => {
-              console.log(inserts.length + ' new booking dates saved.');
-              res.send('booking succesfull');
+              console.log(`${inserts.length} new booking dates saved.`);
+              res.json({
+                listingId,
+                userId,
+                price,
+                startDate: req.body.startDate,
+                endDate: req.body.endDate,
+              });
             })
             .catch((error) => {
               console.error(error);
