@@ -80,7 +80,7 @@ for (const date of datesBetween(new Date(blackoutStart), new Date(blackoutEnd)))
   blackoutDates.push(newDate);
 }
 
-for (let listing_id = 1; listing_id <= 10; listing_id += 1) {
+for (let listing_id = 1; listing_id <= 100000; listing_id += 1) {
   // --------------------------
   // --------- PRICES ---------
   // --------------------------

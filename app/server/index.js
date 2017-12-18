@@ -25,7 +25,7 @@ app.get('/bookings/:listingId', bookingsCache, getBookings, (req, res) => {
 
 
 app.post('/bookings', makeBooking, (req, res) => {
-console.log('post to bookings')
+console.log('post to bookings attempted')
 });
 
 app.listen(PORT, () => console.log(`server listening on PORT ${PORT}`));
