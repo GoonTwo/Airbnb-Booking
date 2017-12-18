@@ -7,21 +7,21 @@ exports.up = function (knex, Promise) {
       table.increments('id').index().primary();
       table.integer('listing_id').index().notNullable();
       table.integer('user_id').index().notNullable();
-      table.date('start_date').notNullable();
-      table.date('end_date').notNullable();
+      table.string('start_date').notNullable();
+      table.string('end_date').notNullable();
       table.decimal('total_cost').notNullable();
     }),
 
     knex.schema.createTable('booking_dates', function (table) {
       table.increments('id').primary();
       table.integer('listing_id').index().notNullable();
-      table.date('date').index().notNullable();
+      table.string('date').index().notNullable();
     }),
 
     knex.schema.createTable('blackout_dates', function (table) {
       table.increments('id').primary();
       table.integer('listing_id').index().notNullable();
-      table.date('date').notNullable();
+      table.string('date').notNullable();
     }),
 
     knex.schema.createTable('prices', function (table) {

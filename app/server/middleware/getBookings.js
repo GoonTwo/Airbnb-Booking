@@ -4,20 +4,15 @@ const redis = require('redis');
 const client = redis.createClient();
 
 const getBookings = (req, res, next) => {
-  return knex.from('bookings')
-    .innerJoin('dates', 'bookings.date_id', 'dates.id')
-    .where('listing_id', req.params.listingId)
-    .then((booking) => {
-      const availability = booking.reduce((acc, el) => {
-        if (acc[el.listing_id]) {
-          acc[el.listing_id].push(el.date);
-        } else {
-          acc[el.listing_id] = [el.date];
-        }
-        return acc;
-      }, {});
-      req.bookings = availability;
-      client.setex(req.params.listingId, 60, JSON.stringify(availability));
+  const { listingId } = req.params;
+  knex.select('date').from('booking_dates').where({ listing_id: listingId }).union(function() {
+    this.select('date').from('blackout_dates').where({ listing_id: listingId });
+  })
+    .orderBy('date')
+    .then((dates) => {
+      console.log('dates :', dates);
+      req.bookings = dates;
+      client.setex(listingId, 60, JSON.stringify(dates));
       next();
     });
 };

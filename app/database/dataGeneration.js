@@ -21,13 +21,13 @@ function randomBeginDate() {
 
 function randomEndDate(bookingStart) {
   var result = new Date(bookingStart);
-  result.setDate(result.getDate() + (Math.floor(Math.random() * 5) + 1));
+  result.setDate(result.getDate() + (Math.floor(Math.random() * 3) + 1));
   return result;
 }
 
 function bookingConflict(startDate, endDate) {
   const attemptedBookingDates = [];
-  for (const date of datesBetween(new Date(startDate), new Date(endDate))) {
+  for (const date of datesBetween(startDate, endDate)) {
     let newDate = moment(date).format('YYYY-MM-DD');
     attemptedBookingDates.push(newDate);
   }
@@ -39,11 +39,11 @@ function bookingConflict(startDate, endDate) {
 
 function addBookings(startDate, endDate) {
   const dates = [];
-  for (const date of datesBetween(new Date(startDate), new Date(endDate))) {
+  for (const date of datesBetween(startDate, endDate)) {
     let newDate = moment(date).format('YYYY-MM-DD');
     dates.push(newDate);
+    bookingTracker[moment(date).format('YYYY-MM-DD')] = true;
   }
-  bookingTracker[dates[i]] = true;
   bookingDates.push({
     startDate: moment(startDate).format('YYYY-MM-DD'),
     endDate: moment(endDate).format('YYYY-MM-DD'),
@@ -57,7 +57,7 @@ function addBookings(startDate, endDate) {
 const bookingTracker = {};
 const bookingDates = [];
 
-for (var i = 0; i < 166; i++) {
+for (var i = 0; i < 100; i++) {
   do {
     var bookingStart = randomBeginDate();
     var bookingEnd = randomEndDate(bookingStart);
@@ -80,14 +80,14 @@ for (const date of datesBetween(new Date(blackoutStart), new Date(blackoutEnd)))
   blackoutDates.push(newDate);
 }
 
-for (let listing_id = 1; listing_id <= 1; listing_id += 1) {
+for (let listing_id = 1; listing_id <= 10; listing_id += 1) {
   // --------------------------
   // --------- PRICES ---------
   // --------------------------
   data.prices.push({
     listing_id: listing_id,
     price: Math.floor((Math.random() * 50) + 20),
-  })
+  });
   
   // --------------------------
   // ----- BLACKOUT DATES ------
@@ -124,7 +124,7 @@ for (let listing_id = 1; listing_id <= 1; listing_id += 1) {
       });
     }
   })
-  
+
   if (listing_id % 1000 === 0) {
     console.log(`finished ${listing_id} listings`)
   }

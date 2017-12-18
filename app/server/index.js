@@ -1,7 +1,4 @@
 require('newrelic');
-const apm = require('elastic-apm-node').start({
-  appName: 'airbnb-booking',
-});
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -9,11 +6,11 @@ const morgan = require('morgan');
 
 const getBookings = require('./middleware/getBookings');
 const bookingsCache = require('./middleware/bookingsCache');
-const makeBooking = require('./helpers/makeBooking');
+const makeBooking = require('./middleware/makeBooking');
 
 const app = express();
 app.use(bodyParser.json());
-app.use(morgan('tiny'));
+// app.use(morgan('tiny'));
 
 const PORT = process.env.PORT || 3000;
 
@@ -27,8 +24,8 @@ app.get('/bookings/:listingId', bookingsCache, getBookings, (req, res) => {
 });
 
 
-app.post('/bookings', (req, res) => {
-  makeBooking(req, res);
+app.post('/bookings', makeBooking, (req, res) => {
+console.log('post to bookings')
 });
 
 app.listen(PORT, () => console.log(`server listening on PORT ${PORT}`));
