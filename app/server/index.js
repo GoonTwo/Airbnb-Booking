@@ -1,16 +1,11 @@
+require('newrelic');
 const apm = require('elastic-apm-node').start({
-  // Set required app name (allowed characters: a-z, A-Z, 0-9, -, _, and space)
   appName: 'airbnb-booking',
-  // Use if APM Server requires a token
-  secretToken: '',
-  // Set custom APM Server URL (default: http://localhost:8200)
-  serverUrl: 'http://localhost:8200',
 });
 
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
-
 
 const getBookings = require('./middleware/getBookings');
 const bookingsCache = require('./middleware/bookingsCache');
@@ -18,7 +13,7 @@ const makeBooking = require('./helpers/makeBooking');
 
 const app = express();
 app.use(bodyParser.json());
-// app.use(morgan('tiny'));
+app.use(morgan('tiny'));
 
 const PORT = process.env.PORT || 3000;
 

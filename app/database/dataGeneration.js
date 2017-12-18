@@ -16,112 +16,117 @@ const data = {
 
 function randomBeginDate() {
   const date = new Date(startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime()));
-  return moment(date).format('YYYY-MM-DD');
+  return date;
 }
 
 function randomEndDate(bookingStart) {
-  return moment(bookingStart).add(`${(Math.floor(Math.random() * 7) + 1)}`, 'days').format('YYYY-MM-DD')
+  var result = new Date(bookingStart);
+  result.setDate(result.getDate() + (Math.floor(Math.random() * 5) + 1));
+  return result;
 }
 
-function bookingConflict(startDate, endDate, listing_id) {
+function bookingConflict(startDate, endDate) {
   const attemptedBookingDates = [];
   for (const date of datesBetween(new Date(startDate), new Date(endDate))) {
     let newDate = moment(date).format('YYYY-MM-DD');
     attemptedBookingDates.push(newDate);
   }
   for (var i = 0; i < attemptedBookingDates.length; i++) {
-    if (bookingTracker[listing_id][attemptedBookingDates]) return true;
+    if (bookingTracker[attemptedBookingDates[i]]) return true;
   }
   return false;
 }
 
-function addBookings(startDate, endDate, listing_id) {
-  const newBookingDates = [];
+function addBookings(startDate, endDate) {
+  const dates = [];
   for (const date of datesBetween(new Date(startDate), new Date(endDate))) {
     let newDate = moment(date).format('YYYY-MM-DD');
-    newBookingDates.push(newDate);
+    dates.push(newDate);
   }
-  for (var i = 0; i < newBookingDates.length; i++) {
-    bookingTracker[listing_id][newBookingDates[i]] = true;
-  }
+  bookingTracker[dates[i]] = true;
+  bookingDates.push({
+    startDate: moment(startDate).format('YYYY-MM-DD'),
+    endDate: moment(endDate).format('YYYY-MM-DD'),
+    dates,
+  })
 }
 
-var beginDate = randomBeginDate();
-var endingDate = randomEndDate(beginDate);
-
+// --------------------------
+// ---- MAKE BOOKING DATES ------
+// --------------------------
 const bookingTracker = {};
+const bookingDates = [];
 
-for (let i = 1; i <= 1000000; i += 1) {
-
-  // --------------------
-  // ----- BOOKINGS -----
-  // --------------------
-
-  const listing_id = Math.floor(Math.random() * 100000);
-
-  const booking = {
-    listing_id: listing_id,
-    user_id: Math.floor(Math.random() * 1000000),
-    total_cost: Math.floor((Math.random() * 100) + 50),
-    start_date: '',
-    end_date: '',
-  };
-
-  bookingTracker[booking.listing_id] = bookingTracker[booking.listing_id] || {};
-
+for (var i = 0; i < 166; i++) {
   do {
     var bookingStart = randomBeginDate();
     var bookingEnd = randomEndDate(bookingStart);
-  } while (bookingConflict(bookingStart, bookingEnd, listing_id))
-  
-  addBookings(bookingStart, bookingEnd, listing_id)
+  } while (bookingConflict(bookingStart, bookingEnd))
+  addBookings(bookingStart, bookingEnd)
+}
 
-  booking.start_date = bookingStart;
-  booking.end_date = bookingEnd;
+// ----------------------------
+// ---- MAKE BLACKOUT DATES ---
+// ----------------------------
+const blackoutDates = [];
 
-  data.bookings.push(booking);
+do {
+  var blackoutStart = randomBeginDate();
+  var blackoutEnd = randomEndDate(blackoutStart);
+} while (bookingConflict(blackoutStart, blackoutEnd))
 
-  // --------------------------
-  // ----- BOOKING DATES ------
-  // --------------------------
+for (const date of datesBetween(new Date(blackoutStart), new Date(blackoutEnd))) {
+  let newDate = moment(date).format('YYYY-MM-DD');
+  blackoutDates.push(newDate);
+}
 
-  for (const date of datesBetween(new Date(bookingStart), new Date(bookingEnd))) {
-    let newDate = moment(date).format('YYYY-MM-DD');
-    data.bookingDates.push({
-      listing_id: listing_id,
-      date: newDate,
-    });
-  }
-
+for (let listing_id = 1; listing_id <= 1; listing_id += 1) {
   // --------------------------
   // --------- PRICES ---------
   // --------------------------
-  
   data.prices.push({
     listing_id: listing_id,
     price: Math.floor((Math.random() * 50) + 20),
   })
   
   // --------------------------
-  // ---- BLACKOUT DATES ------
+  // ----- BLACKOUT DATES ------
   // --------------------------
 
-  do {
-    var blackoutStart = randomBeginDate();
-    var blackoutEnd = randomEndDate(blackoutStart);
-  } while (bookingConflict(blackoutStart, blackoutEnd, listing_id))
-  addBookings(blackoutStart, blackoutEnd, listing_id)
-  
-  for (const date of datesBetween(new Date(blackoutStart), new Date(blackoutEnd))) {
-    let newDate = moment(date).format('YYYY-MM-DD');
+  for (var i = 0; i < blackoutDates.length; i++) {
     data.blackoutDates.push({
       listing_id: listing_id,
-      date: newDate,
+      date: blackoutDates[i],
     });
   }
+  bookingDates.forEach((booking) => {
+    // --------------------
+    // ----- BOOKINGS -----
+    // --------------------
 
-  if (i % 10000 === 0) {
-    console.log('generated :' + i);
+    const newBooking = {
+      listing_id: listing_id,
+      user_id: Math.floor(Math.random() * 1000000),
+      total_cost: Math.floor((Math.random() * 100) + 50),
+      start_date: booking.startDate,
+      end_date: booking.endDate,
+    };
+
+    data.bookings.push(newBooking);
+    // --------------------------
+    // ----- BOOKING DATES ------
+    // --------------------------
+
+    for (var i = 0; i < booking.dates.length; i++) {
+      data.bookingDates.push({
+        listing_id: listing_id,
+        date: booking.dates[i],
+      });
+    }
+  })
+  
+  if (listing_id % 1000 === 0) {
+    console.log(`finished ${listing_id} listings`)
   }
 }
 

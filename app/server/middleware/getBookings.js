@@ -23,3 +23,5 @@ const getBookings = (req, res, next) => {
 };
 
 module.exports = getBookings;
+
+// SELECT date from booking_dates WHERE listing_id = 1 UNION SELECT date from blackout_dates WHERE listing_id = 1 ORDER BY date;
