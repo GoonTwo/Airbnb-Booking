@@ -75,7 +75,7 @@ const makeBooking = (req, res, next) => {
             next();
           })
           .catch((error) => {
-            console.log(error)
+            console.log(error);
             res.status(409).end('no conflicts, but booking was still unsuccesfull');
             next();
           });
