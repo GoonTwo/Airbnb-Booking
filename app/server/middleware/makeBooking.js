@@ -16,7 +16,7 @@ function getDates(beginDate, endDate) {
 }
 
 
-const makeBooking = (req, res, next) => {
+const makeBooking = (req, res) => {
   const { listingId, userId, startDate, endDate } = req.body;
 
   const requestedDates = getDates(startDate, endDate);
@@ -68,13 +68,11 @@ const makeBooking = (req, res, next) => {
               startDate,
               endDate,
             });
-            next();
           });
       });
     })
     .catch((error) => {
       res.status(409).end('no conflicts, but booking was still unsuccesfull');
-      next();
     });
 };
 

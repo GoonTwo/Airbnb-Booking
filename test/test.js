@@ -1,62 +1,49 @@
-/* eslint-disable */
 process.env.NODE_ENV = 'test';
 
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-const server = require('../app/server/index.js');
-const config = require('../knexfile');
+const app = require('../app/server/index.js');
 const knex = require('../app/database/knex');
+const request = require('supertest');
+const chai = require('chai');
 
-const should = chai.should();
-chai.use(chaiHttp);
+const { expect } = chai;
 
-beforeEach(function (done) {
+
+beforeEach((done) => {
   knex.migrate.rollback()
-    .then(function () {
+    .then(() => {
       knex.migrate.latest()
-        .then(function () {
+        .then(() => {
           return knex.seed.run()
-            .then(function () {
+            .then(() => {
               done();
             });
         });
     });
 });
 
-afterEach(function (done) {
+afterEach((done) => {
   knex.migrate.rollback()
-    .then(function () {
+    .then(() => {
       done();
     });
 });
 
-
-describe('Server', function () {
-  describe('GET /bookings/:list_id', function () {
-
-    it('should return 200 status', function (done) {
-      chai.request(server)
+describe('Server', () => {
+  describe('GET /bookings/:list_id', () => {
+    it('should return 200 status', (done) => {
+      request(app)
         .get('/bookings/1')
-        .end(function (err, res) {
-          res.should.have.status(200);
-          done();
-        });
-    });
-
-    it('should return all booked dates', function (done) {
-      chai.request(server)
-        .get('/bookings/1')
-        .end(function (err, res) {
-          res.body.should.have.length(8);
+        .expect(200)
+        .end((err, res) => {
+          expect(res.body).to.have.length(8);
           done();
         });
     });
   });
 
-  describe('POST /bookings/:list_id', function () {
-
-    it('should post a booking', function (done) {
-      chai.request(server)
+  describe('POST /bookings/:list_id', () => {
+    it('should post a booking', (done) => {
+      request(app)
         .post('/bookings')
         .send({
           listingId: '2',
@@ -65,18 +52,18 @@ describe('Server', function () {
           endDate: '2017-01-09',
         })
         .end((err, res) => {
-          res.should.have.status(200);
-          chai.request(server)
+          request(app)
             .get('/bookings/2')
-            .end(function (err, res) {
-              res.body.should.have.length(4);
+            .expect(200)
+            .end((err, res) => {
+              expect(res.body).to.have.length(4);
               done();
             });
         });
     });
 
-    it('should error if listing is already booked', function (done) {
-      chai.request(server)
+    it('should error if listing is already booked', (done) => {
+      request(app)
         .post('/bookings')
         .send({
           listingId: '1',
@@ -84,14 +71,12 @@ describe('Server', function () {
           startDate: '2017-01-02',
           endDate: '2017-01-06',
         })
-        .end(function (err, res) {
-          res.should.have.status(409);
-          done();
-        })
+        .expect(409)
+        .end(done);
     });
 
-    it('should error if listing has blackout dates', function (done) {
-      chai.request(server)
+    it('should error if listing has blackout dates', (done) => {
+      request(app)
         .post('/bookings')
         .send({
           listingId: '1',
@@ -99,11 +84,8 @@ describe('Server', function () {
           startDate: '2017-01-10',
           endDate: '2017-01-15',
         })
-        .end(function (err, res) {
-          res.should.have.status(409);
-          done();
-        })
+        .expect(409)
+        .end(done);
     });
-
   });
 });
