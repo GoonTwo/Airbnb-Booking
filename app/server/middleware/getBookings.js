@@ -10,7 +10,6 @@ const getBookings = (req, res, next) => {
   })
     .orderBy('date')
     .then((dates) => {
-      console.log('dates :', dates);
       req.bookings = dates;
       client.setex(listingId, 60, JSON.stringify(dates));
       next();

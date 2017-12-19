@@ -41,7 +41,6 @@ const makeBooking = (req, res, next) => {
     .then(() => {
       knex.select('price').from('prices').where({ listing_id: listingId }).then((price) => {
         knex.transaction((trx) => {
-          console.log('price: ', price);
           return trx
             .insert({
               listing_id: listingId,

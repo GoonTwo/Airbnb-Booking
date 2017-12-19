@@ -14,7 +14,6 @@ app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 3000;
 
-
 app.get('/', (req, res) => {
   res.json('you made it!');
 });
@@ -23,9 +22,7 @@ app.get('/bookings/:listingId', bookingsCache, getBookings, (req, res) => {
   res.json(req.bookings);
 });
 
-
 app.post('/bookings', makeBooking, (req, res) => {
-console.log('post to bookings attempted')
 });
 
 app.listen(PORT, () => console.log(`server listening on PORT ${PORT}`));
