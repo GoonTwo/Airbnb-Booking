@@ -27,19 +27,15 @@ const makeBooking = (req, res, next) => {
       }
     })
     .then(() => {
-      knex.select('date').from('blackout_dates').where({ listing_id: listingId }).whereIn('date', requestedDates)
+      return knex.select('date').from('blackout_dates').where({ listing_id: listingId }).whereIn('date', requestedDates)
         .then((matchedDates) => {
           if (matchedDates.length > 0) {
             throw new Error('booking conflict');
           }
         });
     })
-    .catch(() => {
-      res.status(409).end('booking conflict');
-      next();
-    })
     .then(() => {
-      knex.select('price').from('prices').where({ listing_id: listingId }).then((price) => {
+      return knex.select('price').from('prices').where({ listing_id: listingId }).then((price) => {
         knex.transaction((trx) => {
           return trx
             .insert({
@@ -63,7 +59,7 @@ const makeBooking = (req, res, next) => {
             .catch(trx.rollback);
         })
           .then((inserts) => {
-            console.log(`${inserts.length} new booking days saved.`);
+            console.log(`${inserts.length} new bookings.`);
             res.json({
               bookingId,
               listingId,
@@ -73,13 +69,12 @@ const makeBooking = (req, res, next) => {
               endDate,
             });
             next();
-          })
-          .catch((error) => {
-            console.log(error);
-            res.status(409).end('no conflicts, but booking was still unsuccesfull');
-            next();
           });
       });
+    })
+    .catch((error) => {
+      res.status(409).end('no conflicts, but booking was still unsuccesfull');
+      next();
     });
 };
 

@@ -4,7 +4,6 @@ process.env.NODE_ENV = 'test';
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../app/server/index.js');
-const knexCleaner = require('knex-cleaner');
 const config = require('../knexfile');
 const knex = require('../app/database/knex');
 
@@ -33,72 +32,76 @@ afterEach(function (done) {
 
 
 describe('Server', function () {
-  describe('GET /booking/:list_id', function () {
+  describe('GET /bookings/:list_id', function () {
 
     it('should return 200 status', function (done) {
       chai.request(server)
-        .get('/')
+        .get('/bookings/1')
         .end(function (err, res) {
           res.should.have.status(200);
           done();
         });
     });
 
-    it('should return listings for list_id 1', function (done) {
+    it('should return all booked dates', function (done) {
       chai.request(server)
-        .get('/booking/1')
+        .get('/bookings/1')
         .end(function (err, res) {
-          res.body[1].should.have.length(3);
+          res.body.should.have.length(8);
           done();
         });
     });
   });
 
-  describe('POST /booking/:list_id', function () {
+  describe('POST /bookings/:list_id', function () {
 
     it('should post a booking', function (done) {
       chai.request(server)
-        .post('/booking/5')
+        .post('/bookings')
         .send({
-          "guest_id": "24",
-          "startDate": "1/10/17",
-          "endDate": "1/13/17"
+          listingId: '2',
+          userId: '24',
+          startDate: '2017-01-06',
+          endDate: '2017-01-09',
         })
         .end((err, res) => {
           res.should.have.status(200);
-        })
-        .then(() => {
           chai.request(server)
-            .get('/booking/5')
+            .get('/bookings/2')
             .end(function (err, res) {
-              res.body[5].should.have.length(4);
+              res.body.should.have.length(4);
               done();
             });
-        })
+        });
     });
 
     it('should error if listing is already booked', function (done) {
       chai.request(server)
-        .post('/booking/3')
+        .post('/bookings')
         .send({
-          "guest_id": "24",
-          "startDate": "1/21/17",
-          "endDate": "1/25/17"
+          listingId: '1',
+          userId: '34',
+          startDate: '2017-01-02',
+          endDate: '2017-01-06',
         })
         .end(function (err, res) {
-          res.should.have.status(200);
+          res.should.have.status(409);
+          done();
         })
-        .then(() => {
-          chai.request(server)
-            .post('/booking/3')
-            .send({
-              "guest_id": "24",
-              "startDate": "1/22/17",
-              "endDate": "1/27/17"
-            }).end(function (err, res) {
-              res.should.have.status(409);
-              done();
-            });
+    });
+
+    it('should error if listing has blackout dates', function (done) {
+      chai.request(server)
+        .post('/bookings')
+        .send({
+          listingId: '1',
+          userId: '76',
+          startDate: '2017-01-10',
+          endDate: '2017-01-15',
+        })
+        .end(function (err, res) {
+          res.should.have.status(409);
+          done();
         })
     });
 

@@ -38,6 +38,6 @@ exports.down = function (knex, Promise) {
     knex.schema.dropTable('bookings'),
     knex.schema.dropTable('booking_dates'),
     knex.schema.dropTable('blackout_dates'),
-    knex.schema.dropTable('price'),
+    knex.schema.dropTable('prices'),
   ]);
 };
