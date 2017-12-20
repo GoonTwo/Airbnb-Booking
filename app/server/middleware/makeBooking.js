@@ -18,7 +18,6 @@ function getDates(beginDate, endDate) {
 
 const makeBooking = (req, res) => {
   const { listingId, userId, startDate, endDate } = req.body;
-
   const requestedDates = getDates(startDate, endDate);
   knex.select('date').from('booking_dates').where({ listing_id: listingId }).whereIn('date', requestedDates)
     .then((matchedDates) => {
@@ -59,7 +58,7 @@ const makeBooking = (req, res) => {
             .catch(trx.rollback);
         })
           .then((inserts) => {
-            console.log(`${inserts.length} new bookings.`);
+            // console.log(`${inserts.length} new bookings.`);
             res.json({
               bookingId,
               listingId,
@@ -75,8 +74,5 @@ const makeBooking = (req, res) => {
       res.status(409).end('no conflicts, but booking was still unsuccesfull');
     });
 };
-
-// SELECT date FROM booking_dates WHERE listing_id = 1 AND date IN ('2017-01-04');
-// knex.raw(`SELECT date FROM booking_dates WHERE listing_id = ${listingId} AND date = ANY(?)`, [requestedDates])
 
 module.exports = makeBooking;

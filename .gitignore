@@ -5,6 +5,8 @@ config/production.json
 config/staging.json
 config/test.json
 
+# Config Variables
+config
 
 # Environment Variables
 .env
