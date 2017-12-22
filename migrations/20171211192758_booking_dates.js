@@ -21,7 +21,7 @@ exports.up = function (knex, Promise) {
     knex.schema.createTable('blackout_dates', function (table) {
       table.increments('id').primary();
       table.integer('listing_id').index().notNullable();
-      table.string('date').notNullable();
+      table.string('date').index().notNullable();
     }),
 
     knex.schema.createTable('prices', function (table) {
