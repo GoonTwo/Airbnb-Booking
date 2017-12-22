@@ -2,6 +2,9 @@ const express = require('express');
 const AWS = require('aws-sdk');
 const makeBooking = require('./middleware/makeBooking');
 const config = require('../config');
+const kue = require('kue');
+
+const queue = kue.createQueue();
 
 AWS.config.update({ region: 'us-east-2' });
 const sns = new AWS.SNS();
@@ -9,6 +12,37 @@ const sns = new AWS.SNS();
 const router = express.Router();
 
 router.post('/bookings', (req, res) => {
+  res.status(304).send();
+  
+  const job = queue.create('makeBooking', {
+    title: 'welcome email for tj',
+    to: 'tj@learnboost.com',
+    template: 'welcome-email',
+  }).priority('high').attempts(2).save((err) => {
+    if (!err) console.log(job.id);
+  });
+
+  queue.process('makeBookings', (job, done) => {
+    email(job.data.to, done);
+  });
+
+  function email(address, done) {
+    if (!isValidEmail(address)) {
+      return done(new Error('invalid to address'));
+    }
+    // email send stuff...
+    done();
+  }
+
+  job.on('complete', (result) => {
+    console.log('Job completed with data ', result);
+  }).on('failed attempt', (errorMessage, doneAttempts) => {
+    console.log('Job failed');
+  }).on('failed', (errorMessage) => {
+    console.log('Job failed');
+  }).on('progress', (progress, data) => {
+    console.log('\r  job #' + job.id + ' ' + progress + '% complete with data ', data);
+  });
   makeBooking(req, res);
 });
 
