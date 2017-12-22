@@ -6,7 +6,7 @@ exports.up = function (knex, Promise) {
     knex.schema.createTable('bookings', function (table) {
       table.increments('id').index().primary();
       table.integer('listing_id').index().notNullable();
-      table.integer('user_id').index().notNullable();
+      table.integer('user_id').notNullable();
       table.string('start_date').notNullable();
       table.string('end_date').notNullable();
       table.decimal('total_cost').notNullable();
