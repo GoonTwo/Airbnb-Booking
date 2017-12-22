@@ -10,9 +10,11 @@ app.use(compression());
 app.use(bodyParser.json());
 app.use('/', routes);
 
-const availabilityRequest = require('./aws/consumer');
+const availabilityConsumer = require('./aws/availabilityConsumer');
+const updateConsumer = require('./aws/updateConsumer');
 
-availabilityRequest.start();
+availabilityConsumer.start();
+updateConsumer.start();
 
 const PORT = process.env.PORT || 3000;
 
