@@ -1,6 +1,7 @@
 const knex = require('../../database/knex');
 const moment = require('moment');
 const Promise = require('bluebird');
+const now = require('performance-now');
 
 let bookingId = '';
 
@@ -16,12 +17,13 @@ function getDates(beginDate, endDate) {
 }
 
 
-const makeBooking = (req, res) => {
-  const { listingId, userId, startDate, endDate } = req.body;
+const makeBooking = (job, done) => {
+  const start = now();
+  const { listingId, userId, startDate, endDate } = job.data;
   const requestedDates = getDates(startDate, endDate);
-
+  
   const query = `WITH booking_dates_subquery AS ( 
-  SELECT * from booking_dates WHERE listing_id = ${listingId} 
+    SELECT * from booking_dates WHERE listing_id = ${listingId} 
   ), 
   blackout_dates_subquery AS ( 
     SELECT * from blackout_dates WHERE listing_id = ${listingId} 
@@ -32,7 +34,7 @@ const makeBooking = (req, res) => {
     SELECT date FROM booking_dates_subquery 
   )
   SELECT * FROM combined_dates WHERE date IN (${requestedDates.map(date => `'${date}'`).join(', ')})`;
-
+  
   knex.raw(query)
     .then((matchedDates) => {
       if (matchedDates.rows.length > 0) {
@@ -65,19 +67,23 @@ const makeBooking = (req, res) => {
             .catch(trx.rollback);
         })
           .then((inserts) => {
-            res.json({
-              bookingId,
-              listingId,
-              userId,
-              totalCost,
-              startDate,
-              endDate,
-            });
+            const end = now();
+            // res.json({
+            //   bookingId,
+            //   listingId,
+            //   userId,
+            //   totalCost,
+            //   startDate,
+            //   endDate,
+            // });
+            // console.log(`${inserts.length} booking dates saved`);
+            console.log((end - start).toFixed(3));
+            done();
           });
       });
     })
     .catch((error) => {
-      res.status(409).end('booking conflict or error');
+      return done(new Error('booking unavailable'));
     });
 };
 

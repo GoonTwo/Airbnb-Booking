@@ -1,32 +1,32 @@
 const kue = require('kue');
+const makeBooking = require('../middleware/makeBooking');
+
 const queue = kue.createQueue();
 
-const job = queue.create('makeBooking', {
-  title: 'welcome email for tj',
-  to: 'tj@learnboost.com',
-  template: 'welcome-email',
-}).priority('high').attempts(2).save((err) => {
-  if (!err) console.log(job.id);
+const booking = (data, done) => {
+  const job = queue
+    .create('makeBooking', data)
+    .priority('high')
+    .removeOnComplete(true)
+    .backoff({ type: 'exponential' })
+    .attempts(1)
+    .save((err) => {
+      if (err) {
+        console.error(err);
+        done(err);
+      }
+      if (!err) {
+        done();
+      }
+    });
+};
+
+queue.process('makeBooking', 1000, (job, done) => {
+  makeBooking(job, done);
 });
 
-queue.process('makeBookings', (job, done) => {
-  email(job.data.to, done);
-});
-
-function email(address, done) {
-  if (!isValidEmail(address)) {
-    return done(new Error('invalid to address'));
-  }
-  // email send stuff...
-  done();
-}
-
-job.on('complete', (result) => {
-  console.log('Job completed with data ', result);
-}).on('failed attempt', (errorMessage, doneAttempts) => {
-  console.log('Job failed');
-}).on('failed', (errorMessage) => {
-  console.log('Job failed');
-}).on('progress', (progress, data) => {
-  console.log('\r  job #' + job.id + ' ' + progress + '% complete with data ', data);
-});
+module.exports = {
+  create: (data, done) => {
+    booking(data, done);
+  },
+};

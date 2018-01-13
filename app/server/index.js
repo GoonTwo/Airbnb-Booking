@@ -1,5 +1,3 @@
-require('newrelic');
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const compression = require('compression');
@@ -16,7 +14,7 @@ const updateConsumer = require('./aws/updateConsumer');
 availabilityConsumer.start();
 updateConsumer.start();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => console.log(`server listening on PORT ${PORT}`));
 

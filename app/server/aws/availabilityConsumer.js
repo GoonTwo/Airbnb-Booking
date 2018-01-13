@@ -8,6 +8,7 @@ const getBookings = require('../middleware/getBookings');
 
 const availabilityConsumer = Consumer.create({
   queueUrl: config.aws.requestQueue,
+  batchSize: 10,
   handleMessage: (message, done) => {
     const load = JSON.parse(message.Body).Message;
     const { listingId } = JSON.parse(load);
@@ -37,6 +38,7 @@ const availabilityConsumer = Consumer.create({
           if (err) {
             throw new Error(err);
           } else {
+            console.log(data);
             done();
           }
         });
