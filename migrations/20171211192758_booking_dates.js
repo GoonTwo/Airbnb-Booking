@@ -4,7 +4,7 @@ exports.up = function (knex, Promise) {
   return Promise.all([
 
     knex.schema.createTable('bookings', function (table) {
-      table.increments('id').index().primary();
+      table.increments('id').primary();
       table.integer('listing_id').index().notNullable();
       table.integer('user_id').notNullable();
       table.string('start_date').notNullable();
@@ -15,13 +15,13 @@ exports.up = function (knex, Promise) {
     knex.schema.createTable('booking_dates', function (table) {
       table.increments('id').primary();
       table.integer('listing_id').index().notNullable();
-      table.string('date').index().notNullable();
+      table.string('date').notNullable();
     }),
 
     knex.schema.createTable('blackout_dates', function (table) {
       table.increments('id').primary();
       table.integer('listing_id').index().notNullable();
-      table.string('date').index().notNullable();
+      table.string('date').notNullable();
     }),
 
     knex.schema.createTable('prices', function (table) {

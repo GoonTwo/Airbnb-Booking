@@ -1,49 +1,35 @@
 const express = require('express');
 const AWS = require('aws-sdk');
-const makeBooking = require('./middleware/makeBooking');
 const config = require('../config');
+const booking = require('./kue/kue');
 const kue = require('kue');
-
-const queue = kue.createQueue();
+const getBookings = require('./middleware/getBookings');
 
 AWS.config.update({ region: 'us-east-2' });
-const sns = new AWS.SNS();
 
+const sns = new AWS.SNS();
 const router = express.Router();
 
+kue.app.listen(3000);
+
 router.post('/bookings', (req, res) => {
-  res.status(304).send();
-  
-  const job = queue.create('makeBooking', {
-    title: 'welcome email for tj',
-    to: 'tj@learnboost.com',
-    template: 'welcome-email',
-  }).priority('high').attempts(2).save((err) => {
-    if (!err) console.log(job.id);
-  });
+  const details = req.body;
 
-  queue.process('makeBookings', (job, done) => {
-    email(job.data.to, done);
-  });
-
-  function email(address, done) {
-    if (!isValidEmail(address)) {
-      return done(new Error('invalid to address'));
+  booking.create(details, (err) => {
+    if (err) {
+      return res.json({
+        error: err,
+        success: false,
+        message: 'could not request booking',
+      });
     }
-    // email send stuff...
-    done();
-  }
-
-  job.on('complete', (result) => {
-    console.log('Job completed with data ', result);
-  }).on('failed attempt', (errorMessage, doneAttempts) => {
-    console.log('Job failed');
-  }).on('failed', (errorMessage) => {
-    console.log('Job failed');
-  }).on('progress', (progress, data) => {
-    console.log('\r  job #' + job.id + ' ' + progress + '% complete with data ', data);
+    return res.json({
+      error: null,
+      success: true,
+      message: 'succesfully requested booking',
+      details,
+    });
   });
-  makeBooking(req, res);
 });
 
 router.get('/sendBooking', (req, res) => {
@@ -117,6 +103,14 @@ router.get('/sendUpdate', (req, res) => {
     }
     res.send(data);
   });
+});
+
+// REDIS CACHE TESTING
+router.get('/bookings/:listingId', (req, res) => {
+  getBookings(req.params.listingId)
+    .then((bookings) => {
+      res.json(bookings);
+    });
 });
 
 module.exports = router;
