@@ -25,9 +25,11 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 ## Requirements
 
 - Node 6.9.x
+- Express 4.16.x
+- Knex 0.13.x
+- Kue 0.11.x
 - Redis 3.2.x
 - Postgresql 9.6.x
-- etc
 
 ## Other Information
 
