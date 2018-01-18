@@ -1,10 +1,10 @@
 # Project Name
 
-The project description
+Airbnb Clone - bookings microservice
 
 ## Roadmap
 
-View the project roadmap [here](LINK_TO_DOC)
+View app plan [here](https://docs.google.com/document/d/1BxnapjypVkmyLF3Q9W7wX4EAiGbYQAFPEHHEiSZDd5E/edit?usp=sharing)
 
 ## Contributing
 
