@@ -1,6 +1,6 @@
 # Project Name
 
-The project description
+Airbnb Clone - bookings microservice
 
 ## Roadmap
 
